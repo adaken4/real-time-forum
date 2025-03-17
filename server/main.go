@@ -3,9 +3,14 @@ package main
 import (
 	"log"
 	"net/http"
+	"real-time-forum/internal/db"
 )
 
 func main() {
+	// Initialize the database
+	db.Init()
+	defer db.CloseDB()
+
 	mux := http.NewServeMux()
 
 	// Serve static files
