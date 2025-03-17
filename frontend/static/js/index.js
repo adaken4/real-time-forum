@@ -3,6 +3,7 @@ import Dashboard from "./views/Dashboard.js";
 import Posts from "./views/Posts.js";
 import PostView from "./views/PostView.js";
 import Settings from "./views/Settings.js";
+import SignupView from "./views/SignupView.js";
 
 const pathToRegex = (path) =>
   new RegExp("^" + path.replace(/\//g, "\\/").replace(/:\w+/g, "(.+)") + "$");
@@ -28,6 +29,7 @@ const navigateTo = (url) => {
 const router = async () => {
   const routes = [
     { path: "/", view: Dashboard },
+    { path: "/signup", view: SignupView },
     { path: "/posts", view: Posts },
     { path: "/posts/:id", view: PostView },
     { path: "/settings", view: Settings },
@@ -55,6 +57,9 @@ const router = async () => {
   const view = new match.route.view(getParams(match));
 
   document.querySelector("#app").innerHTML = await view.getHtml();
+  if (typeof view.onMounted === "function") {
+    view.onMounted(); // Call onMounted() if defined
+  }
 };
 
 window.addEventListener("popstate", router);
