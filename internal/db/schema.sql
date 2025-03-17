@@ -63,6 +63,7 @@ CREATE TABLE IF NOT EXISTS sessions (
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
+DROP TRIGGER IF EXISTS update_users_updated_at;
 CREATE TRIGGER update_users_updated_at
 AFTER UPDATE ON users
 FOR EACH ROW
@@ -70,6 +71,7 @@ BEGIN
     UPDATE users SET updated_at = CURRENT_TIMESTAMP WHERE user_id = OLD.user_id;
 END;
 
+DROP TRIGGER IF EXISTS update_posts_updated_at;
 CREATE TRIGGER update_posts_updated_at
 AFTER UPDATE ON posts
 FOR EACH ROW
@@ -77,6 +79,7 @@ BEGIN
     UPDATE posts SET updated_at = CURRENT_TIMESTAMP WHERE post_id = OLD.post_id;
 END;
 
+DROP TRIGGER IF EXISTS update_comments_updated_at;
 CREATE TRIGGER update_comments_updated_at
 AFTER UPDATE ON comments
 FOR EACH ROW
@@ -84,6 +87,7 @@ BEGIN
     UPDATE comments SET updated_at = CURRENT_TIMESTAMP WHERE comment_id = OLD.comment_id;
 END;
 
+DROP TRIGGER IF EXISTS update_categories_updated_at;
 CREATE TRIGGER update_categories_updated_at
 AFTER UPDATE ON categories
 FOR EACH ROW
@@ -100,7 +104,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_like_post ON likes(user_id, post_id) WHERE post_id IS NOT NULL;
 CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_like_comment ON likes(user_id, comment_id) WHERE comment_id IS NOT NULL;
 
-
+DROP TRIGGER IF EXISTS check_likes;
 CREATE TRIGGER check_likes
 BEFORE INSERT ON likes
 FOR EACH ROW
