@@ -48,7 +48,6 @@ const router = async () => {
   let match = potentialMatches.find(
     (potentialMatch) => potentialMatch.result !== null
   );
-  console.log(match);
   if (!match) {
     match = {
       route: routes[0],
@@ -75,3 +74,32 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   router();
 });
+
+async function checkAuthStatus() {
+  try {
+    const response = await fetch("/api/auth/status", {
+      credentials: "include", // Send cookies
+    });
+    const data = await response.json();
+
+    if (data.authenticated) {
+      console.log("User is logged in:", data.user_id);
+      return data.user_id;
+    } else {
+      console.log("User is not authenticated.");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error checking auth status:", error);
+    return null;
+  }
+}
+
+async function protectRoute(requiredAuth, redirectTo = "/signin") {
+  const userID = await checkAuthStatus();
+
+  if (requiredAuth && !userID) {
+    console.log("Redirecting to signin...");
+    navigateTo(redirectTo)
+  }
+}
