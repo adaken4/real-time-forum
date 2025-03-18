@@ -10,9 +10,15 @@ export default class SignupView extends AbstractView {
 
   async getHtml() {
     return `
-            <form id="signupForm" action="/signup" method="post" autocomplete="off" class="form">
+            <form id="signupForm" autocomplete="off" class="form">
               <p class="title">Register</p>
-              <p class="message">Signup now and get full access to our app.</p>
+              <p class="message">Signup now and get full access to the Forum.</p>
+              
+              <label for="">
+                <input id="nickname" type="text" required />
+                <span>Nickname</span>
+              </label>
+              
               <div class="form-group">
                 <label for="">
                   <input id="firstName" type="text" required />
@@ -23,10 +29,27 @@ export default class SignupView extends AbstractView {
                   <span>Lastname</span>
                 </label>
               </div>
+
+              <label for="">
+                <input id="age" type="number" min="13" required />
+                <span>Age</span>
+              </label>
+
+              <label for="">
+                <select id="gender" required>
+                  <option value="" disabled selected>Select Gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
+                <span>Gender</span>
+              </label>
+              
               <label for="">
                 <input id="email" type="text" required />
                 <span>Email</span>
               </label>
+
               <label for="">
                 <input type="password" id="password" required />
                 <span>Password</span>
@@ -34,6 +57,7 @@ export default class SignupView extends AbstractView {
                   <i class="far fa-eye-slash"></i>
                 </span>
               </label>
+
               <label for="">
                 <input type="password" id="passwordConfirm" required />
                 <span>Confirm password</span>
@@ -41,6 +65,7 @@ export default class SignupView extends AbstractView {
                   <i class="far fa-eye-slash"></i>
                 </span>
               </label>
+
               <button class="submit">Submit</button>
               <p class="signin">Already have an account ? <a href="/signin" data-link>Signin</a></p>
             </form>
@@ -69,12 +94,17 @@ export default class SignupView extends AbstractView {
       event.preventDefault();
 
       const userData = {
+        nickname: document.getElementById("nickname").value,
         firstName: document.getElementById("firstName").value,
         lastName: document.getElementById("lastName").value,
+        age: parseInt(document.getElementById("age").value, 10),
+        gender: document.getElementById("gender").value,
         email: document.getElementById("email").value,
         password: document.getElementById("password").value,
         passwordConfirm: document.getElementById("passwordConfirm").value,
       };
+
+      console.log(JSON.stringify(userData))
 
       try {
         const response = await fetch("/api/signup", {
@@ -85,7 +115,7 @@ export default class SignupView extends AbstractView {
 
         if (response.ok) {
           alert("Signup successful!");
-          window.location.href = "/login"; // Redirect to login
+          window.location.href = "/signin"; // Redirect to signin
         } else {
           const errorData = await response.json();
           alert(errorData.message || "Signup failed.");

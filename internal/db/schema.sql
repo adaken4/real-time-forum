@@ -1,6 +1,10 @@
 CREATE TABLE IF NOT EXISTS users (
 	user_id INTEGER PRIMARY KEY AUTOINCREMENT,
-	username TEXT NOT NULL UNIQUE,
+	nickname TEXT NOT NULL UNIQUE,
+	first_name TEXT NOT NULL,
+	last_name TEXT NOT NULL,
+	age INTEGER NOT NULL CHECK (age >= 13), -- Ensures users are 13 or older
+	gender TEXT CHECK (gender IN ('male', 'female', 'other')), -- Restricts gender values
 	email TEXT NOT NULL UNIQUE,
 	password TEXT NOT NULL,
 	profile_picture TEXT DEFAULT 'default.png',
