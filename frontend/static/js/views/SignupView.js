@@ -1,6 +1,7 @@
 "use strict";
 
 import AbstractView from "./AbstractView.js";
+import { navigateTo } from "../index.js";
 
 export default class SignupView extends AbstractView {
   constructor(params) {
@@ -114,8 +115,8 @@ export default class SignupView extends AbstractView {
         });
 
         if (response.ok) {
-          alert("Signup successful!");
-          window.location.href = "/signin"; // Redirect to signin
+          console.log("Signup successful!");
+          navigateTo("/signin"); // Redirect to signin
         } else {
           const errorData = await response.json();
           alert(errorData.message || "Signup failed.");
