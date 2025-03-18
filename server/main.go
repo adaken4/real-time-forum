@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"real-time-forum/internal/db"
+	"real-time-forum/internal/handlers"
 )
 
 func main() {
@@ -16,6 +17,8 @@ func main() {
 	// Serve static files
 	fs := http.FileServer(http.Dir("frontend/static"))
 	mux.Handle("/static/", http.StripPrefix("/static/", fs))
+
+	mux.HandleFunc("/api/signup", handlers.SignupHandler)
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "frontend/index.html")
