@@ -1,6 +1,7 @@
 "use strict";
 
 import AbstractView from "./AbstractView.js";
+import { navigateTo } from "../index.js";
 
 export default class SigninView extends AbstractView {
   constructor(params) {
@@ -55,8 +56,8 @@ export default class SigninView extends AbstractView {
         });
 
         if (response.ok) {
-          alert("Signin successful!");
-          window.location.href = "/"; // Redirect to dashboard
+          console.log("Signin successful!");
+          navigateTo("/"); // Redirect to dashboard
         } else {
           const errorData = await response.json();
           alert(errorData.message || "Signin failed.");
