@@ -27,9 +27,14 @@ export const navigateTo = (url) => {
   router();
 };
 
+const isAuthenticated = () => {
+  console.log(document.cookie.includes("session_id"));
+  return document.cookie.includes("session_id"); // Simple check
+};
+
 const router = async () => {
   const routes = [
-    { path: "/", view: Dashboard },
+    { path: "/", view: isAuthenticated() ? Dashboard : SigninView },
     { path: "/signup", view: SignupView },
     { path: "/signin", view: SigninView },
     { path: "/posts", view: Posts },
@@ -100,6 +105,6 @@ async function protectRoute(requiredAuth, redirectTo = "/signin") {
 
   if (requiredAuth && !userID) {
     console.log("Redirecting to signin...");
-    navigateTo(redirectTo)
+    navigateTo(redirectTo);
   }
 }
