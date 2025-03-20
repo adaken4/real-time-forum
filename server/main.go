@@ -19,6 +19,7 @@ func main() {
 	mux.Handle("/static/", http.StripPrefix("/static/", fs))
 
 	mux.HandleFunc("/api/signup", handlers.SignupHandler)
+	mux.HandleFunc("/api/signin", handlers.SigninHandler)
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "frontend/index.html")
