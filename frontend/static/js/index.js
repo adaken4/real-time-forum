@@ -108,3 +108,29 @@ async function protectRoute(requiredAuth, redirectTo = "/signin") {
     navigateTo(redirectTo);
   }
 }
+
+const socket = new WebSocket(`ws://${window.location.host}/ws`);
+
+socket.onopen = (event) => {
+  console.log("Websocket connection established");
+  const message = {"message": "Hello, fellow user!"};
+  sendMessage(message);
+}
+
+socket.onmessage = (event) => {
+  try {
+    const data = JSON.parse(event.data);
+    console.log("Received message:", data);
+  } catch (error) {
+    console.error("Error parsing incoming message:", error);
+  }
+};
+
+function sendMessage(message) {
+  if (socket.readyState === WebSocket.OPEN) {
+    socket.send(JSON.stringify(message)); // Only send message content
+    console.log("Sent message:", message)
+  } else {
+    console.warn("WebSocket not open. ReadyState:", socket.readyState);
+  }
+};
