@@ -45,7 +45,7 @@ export default class SigninView extends AbstractView {
 
       const userData = {
         email: document.getElementById("email").value,
-        password: document.getElementById("password").value,
+        password: passwordInput.value,
       };
 
       try {
