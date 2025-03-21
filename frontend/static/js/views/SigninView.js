@@ -11,7 +11,7 @@ export default class SigninView extends AbstractView {
 
   async getHtml() {
     return `
-            <form id="signinForm" autocomplete="off" class="form">
+            <form id="signinForm" autocomplete="off" class="form form-styles">
               <p class="title">Signin</p>
               <p class="message">Access your account now.</p>
               <label for="">
