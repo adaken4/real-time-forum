@@ -20,20 +20,32 @@ socket.onclose = (event) => {
 socket.onmessage = (event) => {
   try {
     const data = JSON.parse(event.data);
-    console.log("Received message:", data);
+    if (data.type === "user_list") {
+      console.log("Online Users:", data.users); // Display user list in console
+    } else if (data.type === "private_message") {
+      console.log(`Message from ${data.from}: ${data.message}`);
+      displayIncomingMessage(data.message, true);
+    } else {
+      console.log(`Public message from ${data.from}: ${data.message}`);
+      displayIncomingMessage(data.message, false);
+    }
 
     // Handle incoming messages
-    if (data.message) {
-      displayIncomingMessage(data.message);
-    }
+    // if (data.message) {
+    //   displayIncomingMessage(data.message);
+    // }
   } catch (error) {
     console.error("Error parsing incoming message:", error);
   }
 };
 
-const sendMessage = (message) => {
+const sendPrivateMessage = (recipientID, message) => {
   if (socket.readyState === WebSocket.OPEN) {
-    socket.send(JSON.stringify({ message })); // Only send message content
+    socket.send(JSON.stringify({
+      "to": recipientID,
+      "message": message,
+      "type": "private_message"
+    })); // Only send message content
     console.log("Sent message:", message);
   } else {
     console.warn("WebSocket not open. ReadyState:", socket.readyState);
@@ -69,7 +81,7 @@ export const handleOutgoingMessage = (e) => {
   chatBody.appendChild(outgoingMessageDiv);
 
   // Send the message via WebSocket
-  sendMessage(userData.message);
+  sendPrivateMessage("1", userData.message);
 
   // Simulate a response with typing indicator after delay
   setTimeout(() => {

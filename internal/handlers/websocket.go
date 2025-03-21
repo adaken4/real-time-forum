@@ -17,7 +17,7 @@ var upgrader = websocket.Upgrader{
 		// To study and implement origin checking
 		return true
 	},
-	HandshakeTimeout: 10 * time.Second,
+	HandshakeTimeout:  10 * time.Second,
 	EnableCompression: true,
 }
 
@@ -77,13 +77,29 @@ func WebSocketHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Parse JSON message
-		var message map[string]interface{}
+		var message struct {
+			To      string `json:"to"`
+			Message string `json:"message"`
+			Type    string `json:"type"`
+		}
 		err = json.Unmarshal(rawMessage, &message)
 		if err != nil {
 			fmt.Println("Invalid JSON recieved:", err)
 			continue
 		}
+
 		fmt.Println(message)
-		rtManager.Broadcast(userID, message)
+
+		// Handle private messaging
+		if message.To != "" && message.Type == "private_message" {
+			rtManager.SendPrivateMessage(userID, message.To, message.Message)
+		} else {
+			fmt.Println("Broadcasting to public")
+			rtManager.Broadcast(userID, map[string]interface{}{
+				"type":    "public_message",
+				"from":    userID,
+				"message": message.Message,
+			})
+		}
 	}
 }
