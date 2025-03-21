@@ -72,6 +72,7 @@ func WebSocketHandler(w http.ResponseWriter, r *http.Request) {
 		_, rawMessage, err := conn.ReadMessage()
 		if err != nil {
 			fmt.Printf("WebSocket read error (user %s): %v\n", userID, err)
+			rtManager.UnregisterClient(userID)
 			break
 		}
 
@@ -83,6 +84,6 @@ func WebSocketHandler(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 		fmt.Println(message)
-		rtManager.Broadcast(message)
+		rtManager.Broadcast(userID, message)
 	}
 }

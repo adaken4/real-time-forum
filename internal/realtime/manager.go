@@ -35,14 +35,19 @@ func (m *RealTimeManager) UnregisterClient(userID string) {
 	}
 }
 
-func (m *RealTimeManager) Broadcast(message interface{}) {
+func (m *RealTimeManager) Broadcast(senderID string, message interface{}) {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 
+	fmt.Printf("Broadcasting to %d clients\n", len(m.clients))
+	m.totalMessages++
+
 	// Send the JSON message to all clients
-	for _, client := range m.clients {
-		fmt.Printf("Broadcasting to %d clients\n", len(m.clients))
-		m.totalMessages++
+	for userID, client := range m.clients {
+		if userID == senderID {
+			continue
+		}
+		
 		err := client.WriteJSON(message)
 		if err != nil {
 			fmt.Println("Error writing JSON to WebSocket:", err)
