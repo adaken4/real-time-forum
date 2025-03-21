@@ -8,8 +8,10 @@ import (
 )
 
 type RealTimeManager struct {
-	clients map[string]*websocket.Conn
-	mutex   sync.Mutex // Mutex for concurrent access
+	clients       map[string]*websocket.Conn
+	mutex         sync.Mutex // Mutex for concurrent access
+	connections   int
+	totalMessages int
 }
 
 func NewRealTimeManager() *RealTimeManager {
@@ -39,6 +41,8 @@ func (m *RealTimeManager) Broadcast(message interface{}) {
 
 	// Send the JSON message to all clients
 	for _, client := range m.clients {
+		fmt.Printf("Broadcasting to %d clients\n", len(m.clients))
+		m.totalMessages++
 		err := client.WriteJSON(message)
 		if err != nil {
 			fmt.Println("Error writing JSON to WebSocket:", err)
