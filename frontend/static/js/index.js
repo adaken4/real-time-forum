@@ -5,7 +5,8 @@ import PostView from "./views/PostView.js";
 import Settings from "./views/Settings.js";
 import SignupView from "./views/SignupView.js";
 import SigninView from "./views/SigninView.js";
-import "./chatroom/chat.js"
+import ChatView from "./views/ChatView.js";
+// import "./chatroom/chat.js";
 
 const pathToRegex = (path) =>
   new RegExp("^" + path.replace(/\//g, "\\/").replace(/:\w+/g, "(.+)") + "$");
@@ -41,6 +42,7 @@ const router = async () => {
     { path: "/posts", view: Posts },
     { path: "/posts/:id", view: PostView },
     { path: "/settings", view: Settings },
+    { path: "/chat", view: ChatView },
   ];
 
   // Test each route for potential match
@@ -66,6 +68,11 @@ const router = async () => {
   document.querySelector("#app").innerHTML = await view.getHtml();
   if (typeof view.onMounted === "function") {
     view.onMounted(); // Call onMounted() if defined
+  }
+  if (match.route.view === ChatView) {
+    import("./chatroom/chat.js").then((module) => {
+      module.default(); // Call the default export if needed
+    });
   }
 };
 
