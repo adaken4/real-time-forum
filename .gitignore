@@ -1,0 +1,19 @@
+# Build/Executable Artifacts
+/bin/
+/*.exe
+/*.out
+
+# Dependency cache and build directory
+/vendor/
+/.cache/
+
+# The SQLite database file
+/rt-forum.db
+
+
+# Environment files containing secrets/config (crucial to ignore)
+.env
+.env.*
+
+# Visual Studio Code
+.vscode/
