@@ -42,7 +42,7 @@ func createCategories() {
 		log.Fatalf("Failed to prepare category insert: %v", err)
 	}
 	defer stmt.Close()
-	
+
 	predefinedCategories := []struct {
 		Name        string
 		Description string
