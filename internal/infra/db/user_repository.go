@@ -146,3 +146,61 @@ func (r *UserRepositoryImpl) UpdateProfile(ctx context.Context, user *domain.Use
 	)
 	return err
 }
+
+// GetAllForStatus retrieves all users with their online status information
+// Returns a slice of UserStatus containing user ID, nickname, online status, 
+// last seen timestamp, and update timestamp
+// Uses LEFT JOIN to include users without explicit status entries, defaulting 
+// online status to false and using creation time as fallback for timestamps
+// Results are ordered alphabetically by nickname for consistent presentation
+func (r *UserRepositoryImpl) GetAllForStatus() ([]domain.UserStatus, error) {
+	ctx := context.Background()
+
+	query := `
+        -- Select all users (LEFT JOIN ensures users without a status entry are still included)
+        SELECT 
+            u.id, 
+            u.nickname,
+            COALESCE(us.online, FALSE),   -- Default status to FALSE if no entry exists
+            COALESCE(us.last_seen, u.created_at), -- Use user creation time as fallback
+            COALESCE(us.updated_at, u.created_at)
+        FROM users u
+        LEFT JOIN user_statuses us ON u.id = us.user_id
+        ORDER BY u.nickname ASC
+    `
+
+	rows, err := r.db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var usersStatus []domain.UserStatus
+
+	for rows.Next() {
+		var uStatus domain.UserStatus
+
+		// Scan the columns into the UserStatus struct fields
+		err := rows.Scan(
+			&uStatus.ID,
+			&uStatus.Nickname,
+			&uStatus.Online,
+			&uStatus.LastSeen,
+			&uStatus.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		// Set the redundant UserID field to the primary ID for completeness
+		uStatus.UserID = uStatus.ID
+
+		usersStatus = append(usersStatus, uStatus)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return usersStatus, nil
+}
