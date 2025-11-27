@@ -123,3 +123,26 @@ func (r *UserRepositoryImpl) GetByID(ctx context.Context, id int) (*domain.User,
 
 	return &user, nil
 }
+
+// UpdateProfile modifies an existing user's profile information in the database
+// It takes a context and user domain object containing updated profile data
+// Returns error if the update operation fails
+// Updates all user profile fields except password and creation timestamp
+func (r *UserRepositoryImpl) UpdateProfile(ctx context.Context, user *domain.User) error {
+	query := `
+		UPDATE users
+		SET email = ?, nickname = ?, first_name = ?, last_name = ?, age = ?, gender = ?
+		WHERE id = ?
+	`
+	// Execute update query with user profile data and ID
+	_, err := r.db.ExecContext(ctx, query,
+		user.Email,
+		user.Nickname,
+		user.FirstName,
+		user.LastName,
+		user.Age,
+		user.Gender,
+		user.ID,
+	)
+	return err
+}
