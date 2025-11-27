@@ -2,69 +2,31 @@ package db
 
 import (
 	"database/sql"
-	"log"
-	"os"
+	"time"
 
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/mattn/go-sqlite3" // SQLite driver import with side effects
 )
 
-var DB *sql.DB
-
-func Init() {
-	var err error
-	DB, err = sql.Open("sqlite3", "./rt-forum.db")
-	if err != nil {
-		log.Fatalf("Failed to connect to database: %v\n", err)
-	}
-
-	createTables()
-	createCategories()
+// SQLiteDB wraps sql.DB to provide SQLite-specific database operations
+// and connection management with optimized pooling settings
+type SQLiteDB struct {
+	*sql.DB // Embed the standard sql.DB to inherit all its methods
 }
 
-func createTables() {
-	sqlBytes, err := os.ReadFile("internal/db/schema.sql")
+// NewSQLiteDB creates and configures a new SQLite database connection
+// It takes the database file path and returns a configured SQLiteDB instance
+// Sets connection pool limits and lifetime for optimal performance
+func NewSQLiteDB(dbPath string) (*SQLiteDB, error) {
+	// Open database connection using SQLite driver
+	db, err := sql.Open("sqlite3", dbPath)
 	if err != nil {
-		log.Fatalf("Failed to read schema file: %v\n", err)
+		return nil, err
 	}
 
-	sqlStatements := string(sqlBytes)
+	// Configure connection pool settings for better performance
+	db.SetMaxOpenConns(25)                 // Maximum number of open connections
+	db.SetMaxIdleConns(25)                 // Maximum number of idle connections
+	db.SetConnMaxLifetime(5 * time.Minute) // Maximum connection lifetime
 
-	if _, err := DB.Exec(sqlStatements); err != nil {
-		log.Fatalf("Failed to execute statements: %v\nQuery %s\n", err, sqlStatements)
-	}
-
-	log.Println("All tables created successfully.")
-}
-
-func createCategories() {
-	stmt, err := DB.Prepare("INSERT OR IGNORE INTO categories (name, description) VALUES (?, ?)")
-	if err != nil {
-		log.Fatalf("Failed to prepare category insert: %v", err)
-	}
-	defer stmt.Close()
-
-	predefinedCategories := []struct {
-		Name        string
-		Description string
-	}{
-		{"Technology", "Posts related to the latest technology and trends"},
-		{"Health", "Discussions about health, fitness, and well-being"},
-		{"Education", "Topics about learning and education"},
-		{"Entertainment", "Movies, music, games, and all things fun"},
-		{"Lifestyle", "Fashion, home decor, and daily living tips"},
-		{"Travel", "Exploring the world, sharing travel experiences"},
-	}
-
-	for _, category := range predefinedCategories {
-		_, err := stmt.Exec(category.Name, category.Description)
-		if err != nil {
-			log.Printf("Error inserting category '%s': '%v'", category.Name, err)
-		}
-	}
-}
-
-func CloseDB() {
-	if DB != nil {
-		DB.Close()
-	}
+	return &SQLiteDB{db}, nil
 }
