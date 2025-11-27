@@ -89,3 +89,37 @@ func (r *UserRepositoryImpl) FindByEmailOrNickname(ctx context.Context, identifi
 
 	return &user, nil
 }
+
+// GetByID retrieves a user from the database by their unique identifier
+// It takes a context and user ID integer, returns user domain object if found
+// Returns nil if user doesn't exist, or error if query fails
+// Excludes sensitive password hash from result for security
+func (r *UserRepositoryImpl) GetByID(ctx context.Context, id int) (*domain.User, error) {
+	query := `
+		SELECT id, email, nickname, first_name, last_name, age, gender, created_at
+		FROM users
+		WHERE id = ?
+	`
+	var user domain.User
+
+	// Execute query with user ID and scan results into user struct
+	err := r.db.QueryRowContext(ctx, query, id).Scan(
+		&user.ID,
+		&user.Email,
+		&user.Nickname,
+		&user.FirstName,
+		&user.LastName,
+		&user.Age,
+		&user.Gender,
+		&user.CreatedAt,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			// User not found - return nil without error
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return &user, nil
+}
