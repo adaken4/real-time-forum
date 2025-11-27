@@ -54,3 +54,38 @@ func (r *UserRepositoryImpl) Create(ctx context.Context, user *domain.User, hash
 	user.ID = int(id)
 	return nil
 }
+
+// FindByEmailOrNickname retrieves a user from the database by email or nickname
+// It takes a context and identifier string that can be either email or nickname
+// Returns the user domain object if found, nil if not found, or error if query fails
+// Useful for login operations and checking duplicate registrations
+func (r *UserRepositoryImpl) FindByEmailOrNickname(ctx context.Context, identifier string) (*domain.User, error) {
+	query := `
+		SELECT id, email, nickname, first_name, last_name, age, gender, password_hash, created_at
+		FROM users
+		WHERE email = ? OR nickname = ?
+	`
+	var user domain.User
+
+	// Execute query and scan results into user struct
+	err := r.db.QueryRowContext(ctx, query, identifier, identifier).Scan(
+		&user.ID,
+		&user.Email,
+		&user.Nickname,
+		&user.FirstName,
+		&user.LastName,
+		&user.Age,
+		&user.Gender,
+		&user.PasswordHash,
+		&user.CreatedAt,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			// Return nil without error when user is not found
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return &user, nil
+}
