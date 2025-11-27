@@ -15,3 +15,13 @@ type UserRepository interface {
 	UpdateProfile(ctx context.Context, user *domain.User) error
 	GetAllForStatus() ([]domain.UserStatus, error)
 }
+
+// ==============================
+// USER STATUS / PRESENCE REPOSITORY
+// ==============================
+type UserStatusRepository interface {
+	SetOnline(ctx context.Context, userID int) error
+	SetOffline(ctx context.Context, userID int) error
+	GetOnlineUsers(ctx context.Context) ([]domain.UserStatus, error)
+	GetStatus(ctx context.Context, userID int) (*domain.UserStatus, error)
+}
