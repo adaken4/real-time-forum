@@ -11,7 +11,12 @@ import (
 type PostRepository interface {
 	Create(ctx context.Context, post *domain.Post) (int, error)
 	GetAll(ctx context.Context, category string, currentUserId int) ([]domain.Post, error)
-	GetByID(ctx context.Context, id int, currentUserId int) (*domain.PostDetail, error)
+	
+	// Detail view
+	GetByID(ctx context.Context, id, currentUserId int) (*domain.PostDetail, error)
+
+	// Basic retrieval for create/update workflows
+	GetPostByID(ctx context.Context, id, currentUserId int) (*domain.Post, error)
 
 	// Reactions
 	UpdateReaction(ctx context.Context, postID, userID int, reactionType string) error
